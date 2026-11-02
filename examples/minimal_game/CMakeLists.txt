@@ -1,0 +1,1 @@
+add_example_game(minimal_game ASSETS_DIR assets)
