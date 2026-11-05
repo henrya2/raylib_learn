@@ -1,10 +1,10 @@
-# Every sub-directory of examples/ that owns a CMakeLists.txt is a game.
+# Every sub-directory of games/ that owns a CMakeLists.txt is a game.
 #
 # To add a new game:
-#   1. create examples/<my_game>/src/main.cpp
-#   2. create examples/<my_game>/CMakeLists.txt with a single
-#      add_example_game(<my_game>) call
-#   3. re-run cmake
+#   1. run `python scripts/new_game.py <my_game>` (creates the folder, sources
+#      and assets for you), or manually create games/<my_game>/CMakeLists.txt
+#      with a single add_game(<my_game>) call and games/<my_game>/src/main.cpp
+#   2. re-run cmake
 # Nothing here has to be edited. Prefix a folder with "_" to skip it.
 
 file(GLOB _candidates RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*")
@@ -22,8 +22,8 @@ foreach(_dir IN LISTS _candidates)
         message(STATUS "Skipping '${_dir}': no CMakeLists.txt (not a game yet?)")
         continue()
     endif()
-    # Optional whitelist: -DRAYLIB_LEARN_EXAMPLES=minimal_game;pong
-    if(RAYLIB_LEARN_EXAMPLES AND NOT _dir IN_LIST RAYLIB_LEARN_EXAMPLES)
+    # Optional whitelist: -DRAYLIB_LEARN_GAMES=minimal_game;my_game
+    if(RAYLIB_LEARN_GAMES AND NOT _dir IN_LIST RAYLIB_LEARN_GAMES)
         continue()
     endif()
 
@@ -33,10 +33,10 @@ endforeach()
 list(SORT _games)
 
 foreach(_game IN LISTS _games)
-    message(STATUS "Example game: ${_game}")
+    message(STATUS "Game: ${_game}")
     add_subdirectory("${_game}")
 endforeach()
 
 if(NOT _games)
-    message(STATUS "No example games found under ${CMAKE_CURRENT_SOURCE_DIR}")
+    message(STATUS "No games found under ${CMAKE_CURRENT_SOURCE_DIR}")
 endif()

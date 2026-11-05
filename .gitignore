@@ -1,4 +1,6 @@
-# Build output
+# Build output - cmake writes the executables to <repo>/bin/<platform>/<config>/,
+# and everything else stays in the build tree
+/bin/
 build/
 build-*/
 out/

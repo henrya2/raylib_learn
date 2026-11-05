@@ -1,12 +1,17 @@
 //------------------------------------------------------------------------------
 // minimal_game - "Gem Catcher"
 //
-// The reference skeleton every other game in examples/ copies:
-//   examples/<game>/CMakeLists.txt  -> add_example_game(<game>)
-//   examples/<game>/src/main.cpp    -> this file
+// The reference skeleton every other game in games/ copies:
+//   games/<game>/CMakeLists.txt  -> add_game(<game>)
+//   games/<game>/src/main.cpp    -> this file
 //
 // Controls : WASD / arrow keys to move, [R] to restart, [Esc] or close to quit
 // Goal     : collect as many gems as you can before the timer runs out
+//
+// At startup the game changes into its own assets folder (assets/minimal_game/),
+// so assets are loaded with bare filenames. GAME_ASSETS_DIR, provided by
+// add_game(), is that folder's fixed path relative to the .exe folder.
+// Sound assets: coin.wav, timeup.wav (assets/minimal_game/).
 //------------------------------------------------------------------------------
 
 #include "raylib.h"
@@ -56,8 +61,20 @@ Vector2 ReadMovement()
 
 int main()
 {
-    InitWindow(kScreenWidth, kScreenHeight, "raylib_learn - minimal_game");
+    InitWindow(kScreenWidth, kScreenHeight, "minimal_game");
+    InitAudioDevice();          // no-op-safe if the audio device cannot be opened
+
+    // Anchor to the .exe folder, then step into this game's own assets folder.
+    // GAME_ASSETS_DIR is that folder's fixed path relative to the .exe, so the
+    // game finds its assets no matter which directory it was launched from.
+    ChangeDirectory(GetApplicationDirectory());
+    ChangeDirectory(GAME_ASSETS_DIR);
+
     SetTargetFPS(60);
+
+    // We are now in assets/minimal_game/, so load by bare filename.
+    const Sound pickupSound = LoadSound("coin.wav");
+    const Sound timeUpSound = LoadSound("timeup.wav");
 
     Vector2 player   = { kScreenWidth * 0.5f, (kScreenHeight + kHudHeight) * 0.5f };
     Gem     gem      = SpawnGem();
@@ -92,6 +109,7 @@ int main()
             {
                 gem = SpawnGem();
                 score += 10;
+                PlaySound(pickupSound);
             }
 
             timeLeft -= dt;
@@ -99,6 +117,7 @@ int main()
             {
                 timeLeft = 0.0f;
                 finished = true;
+                PlaySound(timeUpSound);
             }
         }
 
@@ -136,6 +155,9 @@ int main()
         EndDrawing();
     }
 
+    UnloadSound(pickupSound);
+    UnloadSound(timeUpSound);
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }
