@@ -13,7 +13,7 @@
 | Build system | CMake >= 3.22 |
 | Dependency | raylib 6.2 as a git submodule (`thirdparty/raylib`, pinned at `0256645`, tag `6.2`) |
 | Repository | `https://github.com/henrya2/raylib_learn.git`, branch `main` |
-| Git state | 2 commits, clean working tree; latest `b78c652` "clean up" (2026-11-05) |
+| Git state | `main` tracks `origin/main`; no tags (volatile hashes/counts/working-tree state deliberately omitted — they change on every edit/commit) |
 | Platform | Developed on Windows x64; CMake handles win / macos / linux |
 
 ## Current state
@@ -26,7 +26,8 @@
   `bin/win64/debug/` and `bin/win64/relwithdebinfo/` contain built
   `minimal_game.exe` files (all ignored by git).
 - There are **no tests, CI, presets, license file, or prior documentation** —
-  this README is the first Markdown file in the repository.
+  `README.md` is the only Markdown file tracked in the repository itself (the
+  raylib submodule ships its own docs under `thirdparty/raylib/`).
 - No `CMakePresets.json`; configuration is done with plain `cmake -S/-B`.
 
 ## Repository layout
@@ -39,7 +40,7 @@ raylib_learn/
 ├── games/
 │   ├── CMakeLists.txt          # auto-discovers game sub-directories
 │   └── minimal_game/
-│       ├── CMakeLists.txt      # single line: add_game(minimal_game)
+│       ├── CMakeLists.txt      # 2 lines: derive GAME_NAME, then add_game(${GAME_NAME})
 │       └── src/main.cpp        # "Gem Catcher"
 ├── assets/
 │   └── minimal_game/           # per-game assets, loaded by bare filename
@@ -90,7 +91,8 @@ raylib is added as a sub-project with `BUILD_EXAMPLES=OFF` and
 
 `add_game(<name>)` in `cmake/AddGame.cmake` does all the work:
 
-- Globs `src/*.c` / `src/*.cpp` as sources and `src/*.h*` as headers, both with
+- Recursively globs `src/*.c` / `src/*.cpp` as sources and an explicit header
+  suffix list (`*.h`, `*.hh`, `*.hpp`, `*.hxx`, `*.inl`) as headers, all with
   `CONFIGURE_DEPENDS` so adding a file re-runs CMake automatically.
 - Headers are marked `HEADER_FILE_ONLY` and grouped by their on-disk path so
   they appear in the IDE project tree without being compiled.
@@ -136,8 +138,9 @@ game or assets folder.
 `games/CMakeLists.txt` globs sub-directories automatically, so nothing needs
 editing there. Any directory without a `CMakeLists.txt` is skipped, and
 directories starting with `_` or `.` are ignored (useful for templates).
-Alternatively, create the folder manually with a `CMakeLists.txt` containing
-just `add_game(<name>)` and a `src/main.cpp`, then re-run CMake.
+Alternatively, create the folder manually with the same two-line
+`CMakeLists.txt` template the script emits (or just `add_game(<name>)`) and a
+`src/main.cpp`, then re-run CMake.
 
 ## Ignored / generated files
 
